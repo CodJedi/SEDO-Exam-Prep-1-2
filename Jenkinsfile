@@ -1,7 +1,8 @@
 pipeline {
-    agent { label 'windows' }
+    agent any
+
     stages {
-        stage('Restore dependencies') {
+        stage("Restore dependencies ") {
             when {
                 anyOf {
                     branch 'main'
@@ -9,10 +10,11 @@ pipeline {
                 }
             }
             steps {
-                bat 'dotnet restore SoftUniBazar.sln'
+                bat 'dotnet restore'
             }
         }
-        stage('Build the app') {
+
+        stage("Build the app") {
             when {
                 anyOf {
                     branch 'main'
@@ -20,10 +22,11 @@ pipeline {
                 }
             }
             steps {
-                bat 'dotnet build SoftUniBazar.sln --no-restore'
+                bat 'dotnet build --no-restore'
             }
         }
-        stage('Run tests') {
+
+        stage("Run the tests") {
             when {
                 anyOf {
                     branch 'main'
@@ -31,26 +34,8 @@ pipeline {
                 }
             }
             steps {
-                bat 'dotnet test SoftUniBazar.sln --no-build --verbosity normal --logger trx --results-directory TestResults'
+                bat 'dotnet test --no-build --verbosity normal'
             }
-        }
-        stage('Skip non-target branches') {
-            when {
-                not {
-                    anyOf {
-                        branch 'main'
-                        branch 'feature'
-                    }
-                }
-            }
-            steps {
-                echo "Skipping branch '${env.BRANCH_NAME}'. This multibranch pipeline only runs for 'main' and 'feature'."
-            }
-        }
-    }
-    post {
-        always {
-            archiveArtifacts artifacts: 'TestResults/**/*.trx', allowEmptyArchive: true
         }
     }
 }
