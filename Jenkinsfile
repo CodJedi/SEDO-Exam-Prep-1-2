@@ -1,15 +1,16 @@
-pipeline {    agent any
+pipeline {
+    agent any
 
     stages {
-        stage("Restore dependencies ") {
+        stage("Restore dependencies") {
             when {
                 anyOf {
                     branch 'main'
-                    branch 'feature'
+                    expression { env.BRANCH_NAME?.startsWith('feature') }
                 }
             }
             steps {
-                bat 'dotnet restore'
+                sh 'dotnet restore'
             }
         }
 
@@ -17,11 +18,11 @@ pipeline {    agent any
             when {
                 anyOf {
                     branch 'main'
-                    branch 'feature'
+                    expression { env.BRANCH_NAME?.startsWith('feature') }
                 }
             }
             steps {
-                bat 'dotnet build --no-restore'
+                sh 'dotnet build --no-restore'
             }
         }
 
@@ -29,11 +30,11 @@ pipeline {    agent any
             when {
                 anyOf {
                     branch 'main'
-                    branch 'feature'
+                    expression { env.BRANCH_NAME?.startsWith('feature') }
                 }
             }
             steps {
-                bat 'dotnet test --no-build --verbosity normal'
+                sh 'dotnet test --no-build --verbosity normal'
             }
         }
     }
